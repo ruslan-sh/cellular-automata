@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Wolfram Cellular Automata</title>
+</head>
+<body>
+	<h1>Refresh page to generate new pattern</h1>
+	<canvas id="canvas" width="800" height="800" style='border: 1px solid gray;'>
+		Your browser doesn't support canvas
+	</canvas>
+	<script>
+		function shuffle(array) {
+			var m = array.length, t, i;
+			// While there remain elements to shuffle…
+			while (m) {
+				// Pick a remaining element…
+				i = Math.floor(Math.random() * m--);
+
+				// And swap it with the current element.
+				t = array[m];
+				array[m] = array[i];
+				array[i] = t;
+			}
+
+			return array;
+		}
+
+		const getAutomata = (inputCount, base, ruleIndex) => {
+			if (base < 2 || 8 < base) {
+				throw 'Invalid Input';
+			}
+			const rulesCount = Math.pow(base, inputCount);
+			if (Math.pow(base, rulesCount) < ruleIndex) {
+				throw 'Invalid Input';
+			}
+			const rulesArray = [];
+			let convert = ruleIndex;
+			for (let i = 0; i < rulesCount; i++) {
+				rulesArray[i] = convert % base;
+				convert = parseInt(convert / base);
+			}
+			return {
+				base: base,
+				inputCount: inputCount,
+				rules: rulesArray
+			};
+		};
+
+		const getInputRow = (inputType, size, base) => {
+			const centralPoint = () => {
+				const result = new Array(size).fill(0);
+				result[parseInt(size/2)] = 1;
+				return result;
+			}
+
+			const even = () => {
+				const result = new Array(size).fill(0); 
+				for (let i = 1; i < size; i++) {
+					result[i] = i % base;
+				}
+				return result;
+			}
+
+			const randomEven = () => {				
+				return shuffle(even());
+			}
+
+			const random = () => {
+				const result = new Array(size).fill(0);
+				for (let i = 0; i < size; i++) {
+					result[i] = Math.floor(Math.random() * 2); 
+				}
+				return result;
+			}
+
+			switch (inputType) {
+				case 'center':
+					return centralPoint();
+				case 'even':
+					return even();
+				case 'random-even':
+					return randomEven();
+				default:
+					return random();
+			}
+		};
+
+		const invokeAutomata = (input, automata) => {
+			const size = input.length;
+			const output = new Array(size);
+			for (let i = 0; i < size; i++) {
+				let ruleIndex = 0;
+				for (let j = 0; j < automata.inputCount; j++) {
+					let inputIndex = i + j - parseInt(automata.inputCount/2);
+					if (inputIndex < 0) {
+						inputIndex = size + inputIndex;
+					}
+					if (size <= inputIndex) {
+						inputIndex = inputIndex - size;
+					}
+					ruleIndex = ruleIndex * base + input[inputIndex];
+				}
+				output[i] = automata.rules[ruleIndex];
+			}
+			return output;
+		};
+
+		const getColors = () => {
+			// black white red green blue yellow purple cyan
+			const colors = [
+				'#FAFAFA', // black
+				'#212121', // white
+				'#F44336', // red
+				'#4CAF50', // green
+				'#2196F3', // blue
+				'#FFEB3B', // yellow
+				'#9C27B0', // purple
+				'#00BCD4', // cyan
+			];
+			return shuffle(colors);
+		};
+
+		const drawRow = (rowIndex, base, row, zoom, colors) => {
+			const canvas = document.getElementById('canvas');
+			const ctx = canvas.getContext('2d');
+			const y = rowIndex * zoom;
+			for (let i = 0; i < row.length; i++) {
+				const x = i * zoom;
+				ctx.fillStyle = colors[row[i]];
+				ctx.fillRect(x, y, zoom, zoom);
+			}
+		};
+
+		const base = 3;
+		const size = 400;
+		const zoom = 2;
+		const input = 3;
+		const colors = getColors();
+		const rule = Math.floor(Math.random() * Math.pow(base, Math.pow(base, input)));
+		console.log(rule);
+		const automata = getAutomata(input, base, rule);
+
+		let row = getInputRow('random-even', size, base);
+		drawRow(0, base, row, zoom, colors);
+		for (let i = 1; i < size; i++) {
+			row = invokeAutomata(row, automata);
+			drawRow(i, base, row, zoom, colors);
+		}
+	</script>
+</body>
+</html>
