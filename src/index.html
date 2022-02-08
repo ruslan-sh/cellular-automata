@@ -20,6 +20,18 @@
       --spacing-2: 16px;
       --spacing-3: 24px;
       --spacing-4: 32px;
+
+      /* Font Size */
+      --fs-small: 0.8em;
+      --fs-medium: 1em;
+    }
+
+    .m-t-4 {
+      margin-top: var(--spacing-4);
+    }
+
+    .d-n-i {
+      display: none !important;
     }
 
     html {
@@ -44,10 +56,21 @@
     }
 
     .text--small {
-      font-size: 0.8em;
+      font-size: var(--fs-small);
     }
 
-    .content {
+    .form-field {
+      margin: var(--spacing-1) 0;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .form-field label {
+      font-size: var(--fs-small);
+    }
+
+    #content {
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -60,15 +83,35 @@
       cursor: pointer;
     }
 
-    .footer {
-      margin-top: var(--spacing-4);
+    #settings {
+      flex-grow: 1;
+    }
+
+    #settings #settings-form {
+      display: flex;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      justify-content: space-evenly;
+    }
+
+    #settings .settings-section {
+      display: flex;
+      flex-direction: column;
+    }
+
+    #settings .settings-section h3 {
+      font-size: var(--fs-medium);
+      margin-bottom: var(--spacing-1);
+    }
+
+    #footer {
       display: flex;
       flex-wrap: wrap;
       justify-content: space-evenly;
       padding: var(--spacing-3);
     }
 
-    .footer a {
+    #footer a {
       color: var(--color-grey-500);
       padding: var(--spacing-1);
     }
@@ -77,18 +120,77 @@
   <title>Elementary Cellular Automata</title>
 </head>
 <body>
-  <section class="content">
+  <section id="content">
     <canvas id="canvas" onclick="main()">
       Your browser doesn't support canvas
     </canvas>
-    <p class="text--small">Tap, click or refresh to update</p>
+    <div>
+      <p class="text--small">Tap, click or refresh to update</p>
+    </div>
+    <button id="toggle-settings" onclick="toggleSettings()">Settings</button>
   </section>
-  <section class="footer">
+  
+  <section id="settings" class="d-n-i">    
+    <form id="settings-form">
+      <div class="settings-section">
+        <h3>Automata</h3>
+        <div class="form-field">
+          <label for="base">Base:</label>
+          <select name="base" id="settings__base">
+            <option value="2">2</option>
+            <option value="3">3</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label for="input-cells">Input cells:</label>
+          <select name="input-cells" id="settings__input-cells">
+            <option value="2">2</option>
+            <option value="3">3</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label for="rule-id">Rule ID:</label>
+          <div>
+            <input type="checkbox" name="random-rule" id="settings__random-rule" />
+            <label for="random-rule">Random rule</label>
+          </div>
+          <input type="number" name="rule-id" id="settings__rule-id" min="0" />
+        </div>
+      </div>
+      <div class="settings-section">
+        <h3>Display</h3>
+        <div class="form-field">
+          <label for="size">Size:</label>
+          <input type="number" name="size" id="settings__size" min="1" max="2160" />
+        </div>        
+        <div class="form-field">
+          <label for="zoom">Zoom:</label>
+          <input type="number" name="zoom" id="settings__zoom" min="1" max="100" />
+        </div>
+      </div>
+      <div class="settings-section">
+        <h3>Other</h3>
+        <div class="form-field">
+          <label for="input-style">Input style:</label>
+          <select name="input-style" id="settings__input-style">
+            <option value="center">center</option>
+            <option value="even">even</option>
+            <option value="interchange">interchange</option>
+            <option value="random">random</option>
+            <option value="random-even">random-even</option>
+          </select>
+        </div>
+      </div>
+    </form>
+  </section>
+  
+  <section id="footer" class="m-t-4">
     <a class="text--small" href="https://en.wikipedia.org/wiki/Elementary_cellular_automaton">
       WTF am I looking at?
     </a>
     <a class="text--small" href="https://github.com/ruslan-sh/cellular-automata">GitHub</a>
   </section>
+  
   <script>
     function shuffle(array) {
       var m = array.length, t, i;
@@ -111,19 +213,19 @@
         if (conf.base < 2 || 8 < conf.base) {
           throw 'Invalid Input';
         }
-        const rulesCount = Math.pow(conf.base, conf.inputSize);
-        if (Math.pow(conf.base, rulesCount) < conf.ruleIndex) {
+        const rulesCount = Math.pow(conf.base, conf.inputCells);
+        if (Math.pow(conf.base, rulesCount) < conf.ruleId) {
           throw 'Invalid Input';
         }
         const rulesArray = new Array(rulesCount);
-        let convert = conf.ruleIndex;
+        let convert = conf.ruleId;
         for (let i = 0; i < rulesCount; i++) {
           rulesArray[i] = convert % conf.base;
           convert = parseInt(convert / conf.base);
         }
 
         this.base = conf.base;
-        this.inputSize = conf.inputSize;
+        this.inputCells = conf.inputCells;
         this.rules = rulesArray;
       }
 
@@ -131,18 +233,18 @@
         const size = input.length;
         const output = new Array(size);
         for (let i = 0; i < size; i++) {
-          let ruleIndex = 0;
-          for (let j = 0; j < this.inputSize; j++) {
-            let inputIndex = i + j - parseInt(this.inputSize/2);
+          let ruleId = 0;
+          for (let j = 0; j < this.inputCells; j++) {
+            let inputIndex = i + j - parseInt(this.inputCells/2);
             if (inputIndex < 0) {
               inputIndex = size + inputIndex;
             }
             if (size <= inputIndex) {
               inputIndex = inputIndex - size;
             }
-            ruleIndex = ruleIndex * this.base + input[inputIndex];
+            ruleId = ruleId * this.base + input[inputIndex];
           }
-          output[i] = this.rules[ruleIndex];
+          output[i] = this.rules[ruleId];
         }
         return output;
       }
@@ -202,7 +304,11 @@
       }
 
       static getRandomRule(conf) {
-        return Math.floor(Math.random() * Math.pow(conf.base, Math.pow(conf.base, conf.inputSize)));
+        return Math.floor(Math.random() * Automata.getRulesCount(conf));
+      }
+
+      static getRulesCount(conf) {
+        return Math.pow(conf.base, Math.pow(conf.base, conf.inputCells));
       }
     }
 
@@ -238,36 +344,156 @@
           '#9C27B0', // purple
           '#00BCD4', // cyan
           ];
-          return shuffle(colors);
+        return shuffle(colors);
+      }
+    }
+
+    let app = {};
+
+    function init() {
+      const settingsForm = document.getElementById('settings-form');
+
+      const changeField = (obj, field, value) => {
+        if (obj[field] === value) {
+          return false;
         }
+        
+        obj[field] = value;
+        return true;
+      };
+
+      const changeForm = (form, element, value, select, set) => {
+        if (!select) {
+          select = (element) => {element.value;}
+        }
+
+        if (!set) {
+          set = (element, value) => {element.value = value;}
+        }
+
+        const elementValue = select(form.elements[element]);
+        if (elementValue === value) {
+          return false;
+        }
+
+        set(form.elements[element], value);
       }
 
-      function main() {
-        const automataConf = {
-          base: 3,
-          inputSize: 3,
-          ruleIndex: 0,
-        };    
-        automataConf.ruleIndex = Automata.getRandomRule(automataConf);
-        console.log(automataConf.ruleIndex);
-        const automata = new Automata(automataConf);
-        
-        const displayConf = {       
-          size: 360,
-          zoom: 2,
+      
+      app = {
+        automataConf: {
+          setInputCells: (value) => {
+            if (changeField(app.automataConf, 'inputCells', value)) {
+              changeForm(
+                settingsForm,
+                'rule-id', 
+                Automata.getRulesCount(app.automataConf), 
+                (element) => element.getAttribute("max"), 
+                (element, value) => element.setAttribute("max", value));
+            }
+
+            changeForm(settingsForm, 'input-cells', value);
+          },
+          
+          setBase: (value) => {
+            if (changeField(app.automataConf, 'base', value)) {
+              changeForm(
+                settingsForm,
+                'rule-id', 
+                Automata.getRulesCount(app.automataConf), 
+                (element) => element.getAttribute("max"), 
+                (element, value) => element.setAttribute("max", value));
+              app.setRandomRule(true);
+            }
+
+            changeForm(settingsForm, 'base', value);
+          },
+          
+          setRuleId: (value) => {
+            changeField(app.automataConf, 'ruleId', value);
+            changeForm(settingsForm, 'rule-id', value);
+          }
+        },
+
+        displayConf: {
+          setSize: (value) => {
+            changeField(app.displayConf, 'size', value);
+            changeForm(settingsForm, 'size', value);
+          },
+          setZoom: (value) => {
+            changeField(app.displayConf, 'zoom', value);
+            changeForm(settingsForm, 'zoom', value);
+          },
           colors: Display.getRandomColors(),
-        }
-        const display = new Display(displayConf);
-        
-        let row = automata.getInputRow('random-even', displayConf.size);
-        display.drawRow(0, row);
-        for (let i = 1; i < displayConf.size; i++) {
-          row = automata.invoke(row);
-          display.drawRow(i, row);
-        }
-      }
+        },
 
-      main();
-    </script>
-  </body>
-  </html>
+        setRandomRule: (value) => {
+          changeField(app, 'randomRule', value);
+          changeForm(
+            settingsForm,
+            'random-rule',
+            value,
+            (element) => element.checked,
+            (element, value) => element.checked = value);
+          changeForm(
+            settingsForm, 
+            'rule-id', 
+            value,
+            (element) => element.disabled,
+            (element, value) => element.disabled = value);        
+        },
+
+        setInputStyle: (value) => {
+          changeField(app, 'inputStyle', value);
+          changeForm(settingsForm, 'input-style', value);
+        }
+      };
+
+      // Default config
+      app.automataConf.setBase(3);
+      app.automataConf.setInputCells(3);
+      app.displayConf.setSize(360);
+      app.displayConf.setZoom(2);
+      app.setRandomRule(true);
+      app.setInputStyle('random-even');
+
+      settingsForm.addEventListener('change', () => {
+        app.automataConf.setBase(settingsForm.elements['base'].value);
+        app.automataConf.setInputCells(settingsForm.elements['input-cells'].value);
+        app.automataConf.setRuleId(settingsForm.elements['rule-id'].value);
+
+        app.displayConf.setSize(settingsForm.elements['size'].value);
+        app.displayConf.setZoom(settingsForm.elements['zoom'].value);
+
+        app.setRandomRule(settingsForm.elements['random-rule'].checked);
+        app.setInputStyle(settingsForm.elements['input-style'].value);
+      });
+    }
+
+    function main() {
+      if (app.randomRule) {
+        app.automataConf.setRuleId(Automata.getRandomRule(app.automataConf));
+      }
+      app.displayConf.colors = Display.getRandomColors();
+      const automata = new Automata(app.automataConf);      
+      const display = new Display(app.displayConf);      
+      let row = automata.getInputRow(app.inputStyle, app.displayConf.size);
+      display.drawRow(0, row);
+      for (let i = 1; i < app.displayConf.size; i++) {
+        row = automata.invoke(row);
+        display.drawRow(i, row);
+      }
+    }
+
+    /* eslint-disable no-unused-vars -- used in HTML */
+    function toggleSettings() {
+      const settingsSection = document.getElementById("settings");
+      settingsSection.classList.toggle('d-n-i');
+    }
+    /* eslint-enable no-unused-vars */
+
+    init();
+    main();
+  </script>
+</body>
+</html>
