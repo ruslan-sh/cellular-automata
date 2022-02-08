@@ -3,17 +3,54 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>Wolfram Cellular Automata</title>
+	<style type="text/css">
+		body {
+			font-family: Verdana, sans-serif;
+			color: #FAFAFA;
+			background: #212121;
+		}
+		h1, h2, h3 {
+			font-family: Helvetica, sans-serif;
+		}
+
+		.text--small {
+			font-size: 0.8em;
+		}
+
+		.content {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+		}
+
+		#canvas {
+			border: 1px solid gray;
+			cursor: pointer;
+		}
+
+		.footer {
+			display: flex;
+			margin-top: 32px;
+			justify-content: space-evenly;
+		}
+			.footer a {
+				color: #9E9E9E;
+				font-size: 0.8em;
+			}
+	</style>
+
+	<title>Elementary Cellular Automata</title>
 </head>
 <body>
-	<h1>Refresh page to generate new pattern</h1>
-	<p>
-		<a href="https://github.com/ruslan-sh/cellular-automata">GitHub</a>
-	</p>
-	<div>
-		<canvas id="canvas" width="800" height="800" style='border: 1px solid gray;'>
+	<div class="content">
+		<canvas id="canvas" onclick="main()">
 			Your browser doesn't support canvas
 		</canvas>
+		<p class="text--small">Tap, click or refresh to update</p>
+	</div>
+	<div class="footer">
+		<a href="https://github.com/ruslan-sh/cellular-automata">GitHub</a>
+		<a href="https://en.wikipedia.org/wiki/Elementary_cellular_automaton">Elementary Cellular Automata</a>
 	</div>
 	<script>
 		function shuffle(array) {
@@ -32,127 +69,152 @@
 			return array;
 		}
 
-		const getAutomata = (inputCount, base, ruleIndex) => {
-			if (base < 2 || 8 < base) {
-				throw 'Invalid Input';
-			}
-			const rulesCount = Math.pow(base, inputCount);
-			if (Math.pow(base, rulesCount) < ruleIndex) {
-				throw 'Invalid Input';
-			}
-			const rulesArray = [];
-			let convert = ruleIndex;
-			for (let i = 0; i < rulesCount; i++) {
-				rulesArray[i] = convert % base;
-				convert = parseInt(convert / base);
-			}
-			return {
-				base: base,
-				inputCount: inputCount,
-				rules: rulesArray
-			};
-		};
-
-		const getInputRow = (inputType, size, base) => {
-			const centralPoint = () => {
-				const result = new Array(size).fill(0);
-				result[parseInt(size/2)] = 1;
-				return result;
-			}
-
-			const even = () => {
-				const result = new Array(size).fill(0); 
-				for (let i = 1; i < size; i++) {
-					result[i] = i % base;
+		class Automata {
+			constructor(conf) {
+				if (conf.base < 2 || 8 < conf.base) {
+					throw 'Invalid Input';
 				}
-				return result;
+				const rulesCount = Math.pow(conf.base, conf.inputSize);
+				if (Math.pow(conf.base, rulesCount) < conf.ruleIndex) {
+					throw 'Invalid Input';
+				}
+				const rulesArray = new Array(rulesCount);
+				let convert = conf.ruleIndex;
+				for (let i = 0; i < rulesCount; i++) {
+					rulesArray[i] = convert % conf.base;
+					convert = parseInt(convert / conf.base);
+				}
+
+				this.base = conf.base;
+				this.inputSize = conf.inputSize;
+				this.rules = rulesArray;
 			}
 
-			const randomEven = () => {				
-				return shuffle(even());
-			}
-
-			const random = () => {
-				const result = new Array(size).fill(0);
+			invoke(input) {
+				const size = input.length;
+				const output = new Array(size);
 				for (let i = 0; i < size; i++) {
-					result[i] = Math.floor(Math.random() * 2); 
-				}
-				return result;
-			}
-
-			switch (inputType) {
-				case 'center':
-					return centralPoint();
-				case 'even':
-					return even();
-				case 'random-even':
-					return randomEven();
-				default:
-					return random();
-			}
-		};
-
-		const invokeAutomata = (input, automata) => {
-			const size = input.length;
-			const output = new Array(size);
-			for (let i = 0; i < size; i++) {
-				let ruleIndex = 0;
-				for (let j = 0; j < automata.inputCount; j++) {
-					let inputIndex = i + j - parseInt(automata.inputCount/2);
-					if (inputIndex < 0) {
-						inputIndex = size + inputIndex;
+					let ruleIndex = 0;
+					for (let j = 0; j < this.inputSize; j++) {
+						let inputIndex = i + j - parseInt(this.inputSize/2);
+						if (inputIndex < 0) {
+							inputIndex = size + inputIndex;
+						}
+						if (size <= inputIndex) {
+							inputIndex = inputIndex - size;
+						}
+						ruleIndex = ruleIndex * this.base + input[inputIndex];
 					}
-					if (size <= inputIndex) {
-						inputIndex = inputIndex - size;
-					}
-					ruleIndex = ruleIndex * base + input[inputIndex];
+					output[i] = this.rules[ruleIndex];
 				}
-				output[i] = automata.rules[ruleIndex];
+				return output;
 			}
-			return output;
-		};
 
-		const getColors = () => {
-			// black white red green blue yellow purple cyan
-			const colors = [
-				'#FAFAFA', // black
-				'#212121', // white
-				'#F44336', // red
-				'#4CAF50', // green
-				'#2196F3', // blue
-				'#FFEB3B', // yellow
-				'#9C27B0', // purple
-				'#00BCD4', // cyan
-			];
-			return shuffle(colors);
-		};
+			getInputRow(inputType, size) {
+				const centralPoint = () => {
+					const result = new Array(size).fill(0);
+					result[parseInt(size/2)] = 1;
+					return result;
+				}
 
-		const drawRow = (rowIndex, base, row, zoom, colors) => {
-			const canvas = document.getElementById('canvas');
-			const ctx = canvas.getContext('2d');
-			const y = rowIndex * zoom;
-			for (let i = 0; i < row.length; i++) {
-				const x = i * zoom;
-				ctx.fillStyle = colors[row[i]];
-				ctx.fillRect(x, y, zoom, zoom);
+				const even = () => {
+					const result = new Array(size).fill(0); 
+					for (let i = 1; i < size; i++) {
+						result[i] = i % this.base;
+					}
+					return result;
+				}
+
+				const randomEven = () => {				
+					return shuffle(even());
+				}
+
+				const random = () => {
+					const result = new Array(size).fill(0);
+					for (let i = 0; i < size; i++) {
+						result[i] = Math.floor(Math.random() * 2); 
+					}
+					return result;
+				}
+
+				switch (inputType) {
+					case 'center':
+						return centralPoint();
+					case 'even':
+						return even();
+					case 'random-even':
+						return randomEven();
+					default:
+						return random();
+				}
+			}
+
+			static getRandomRule(conf) {
+				return Math.floor(Math.random() * Math.pow(conf.base, Math.pow(conf.base, conf.inputSize)));
 			}
 		};
 
-		const base = 3;
-		const size = 400;
-		const zoom = 2;
-		const input = 3;
-		const colors = getColors();
-		const rule = Math.floor(Math.random() * Math.pow(base, Math.pow(base, input)));
-		console.log(rule);
-		const automata = getAutomata(input, base, rule);
+		class Display {
+			constructor(conf) {
+				this.size = conf.size;
+				this.zoom = conf.zoom;
+				this.colors = conf.colors;
 
-		let row = getInputRow('random-even', size, base);
-		drawRow(0, base, row, zoom, colors);
-		for (let i = 1; i < size; i++) {
-			row = invokeAutomata(row, automata);
-			drawRow(i, base, row, zoom, colors);
+				this.canvas = document.getElementById('canvas');
+				this.canvas.height = this.size * this.zoom;
+				this.canvas.width = this.size * this.zoom;
+				this.context = canvas.getContext('2d');
+			}
+
+			drawRow(rowIndex, row) {
+				const y = rowIndex * this.zoom;
+				for (let i = 0; i < row.length; i++) {
+					const x = i * this.zoom;
+					this.context.fillStyle = this.colors[row[i]];
+					this.context.fillRect(x, y, this.zoom, this.zoom);
+				}
+			}
+
+			static getRandomColors() {
+				const colors = [
+					'#FAFAFA', // black
+					'#212121', // white
+					'#F44336', // red
+					'#4CAF50', // green
+					'#2196F3', // blue
+					'#FFEB3B', // yellow
+					'#9C27B0', // purple
+					'#00BCD4', // cyan
+				];
+				return shuffle(colors);
+			}
+		};
+
+		const main = () => {
+			const automataConf = {
+				base: 3,
+				inputSize: 3,
+				ruleIndex: 0,
+			};		
+			automataConf.ruleIndex = Automata.getRandomRule(automataConf);
+			console.log(automataConf.ruleIndex);
+			const automata = new Automata(automataConf);
+	
+			const displayConf = {			
+				size: 360,
+				zoom: 2,
+				colors: Display.getRandomColors(),
+			}
+			const display = new Display(displayConf);
+			
+			let row = automata.getInputRow('random-even', displayConf.size);
+			display.drawRow(0, row);
+			for (let i = 1; i < displayConf.size; i++) {
+				row = automata.invoke(row);
+				display.drawRow(i, row);
+			}
 		}
+		main();
 	</script>
 </body>
 </html>
