@@ -1,3 +1,3 @@
 # Cellular Automata #
 
-https://ruslan-sh.github.io/cellular-automata/
+https://ruslan-sh.github.io/cellular-automata/src
