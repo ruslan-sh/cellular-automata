@@ -439,7 +439,6 @@
         },
 
         setInputStyle: (value) => {
-          console.log(value);
           changeField(app, 'inputStyle', value);
           changeForm(settingsForm, 'input-style', value);
         }
@@ -495,7 +494,7 @@
       const settingsSection = document.getElementById("settings");
       settingsSection.classList.toggle('d-n-i');
     }
-    
+
     init();
     main();
   </script>
