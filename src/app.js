@@ -105,6 +105,17 @@ class App {
         changeField(this.config, "inputStyle", value);
         changeForm(settingsForm, "input-style", value);
       },
+
+      setEnableScroll: (value) => {
+        changeField(this.config, "enableScroll", value);
+        changeForm(
+          settingsForm,
+          "enable-scroll",
+          value,
+          (element) => element.checked,
+          (element, value) => (element.checked = value)
+        );
+      },
     };
 
     // Init select
@@ -123,6 +134,7 @@ class App {
     this.config.display.setZoom(2);
     this.config.setRandomRule(true);
     this.config.setInputStyle(InputStyle.shuffleEven);
+    this.config.setEnableScroll(false);
 
     settingsForm.addEventListener("change", () => {
       this.config.automata.setBase(settingsForm.elements["base"].value);
@@ -136,6 +148,9 @@ class App {
 
       this.config.setRandomRule(settingsForm.elements["random-rule"].checked);
       this.config.setInputStyle(settingsForm.elements["input-style"].value);
+      this.config.setEnableScroll(
+        settingsForm.elements["enable-scroll"].checked
+      );
     });
 
     this.generate();
@@ -150,6 +165,14 @@ class App {
     this.config.display.colors = Display.getRandomColors();
     const automata = new Automata(this.config.automata);
     const display = new Display(this.config.display);
+    if (this.config.enableScroll) {
+      this.scrollGenerate(automata, display);
+    } else {
+      this.instantGenerate(automata, display);
+    }
+  }
+
+  instantGenerate(automata, display) {
     let row = automata.getInputRow(
       this.config.inputStyle,
       this.config.display.size
@@ -159,6 +182,29 @@ class App {
       row = automata.invoke(row);
       display.drawRow(i, row);
     }
+  }
+
+  scrollGenerate(automata, display) {
+    clearInterval(this.scrollInterval);
+    let row = automata.getInputRow(
+      this.config.inputStyle,
+      this.config.display.size
+    );
+    display.drawRow(0, row);
+
+    let rowIndex = 0;
+    const scroll = (rowsCount) => {
+      for (let i = 0; i < rowsCount; i++) {
+        if (rowIndex < this.config.display.size - 1) {
+          rowIndex++;
+        } else {
+          display.shiftUp(1);
+        }
+        row = automata.invoke(row);
+        display.drawRow(rowIndex, row);
+      }
+    };
+    this.scrollInterval = setInterval(() => scroll(2), 33);
   }
 
   handleToggleSettings() {

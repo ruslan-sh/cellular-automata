@@ -7,9 +7,9 @@ class Display {
     this.zoom = conf.zoom;
     this.colors = conf.colors;
 
-    const canvas = document.getElementById("canvas");
-    canvas.height = this.size * this.zoom;
-    canvas.width = this.size * this.zoom;
+    this.canvas = document.getElementById("canvas");
+    this.canvas.height = this.size * this.zoom;
+    this.canvas.width = this.size * this.zoom;
     this.context = canvas.getContext("2d");
   }
 
@@ -20,6 +20,16 @@ class Display {
       this.context.fillStyle = this.colors[row[i]];
       this.context.fillRect(x, y, this.zoom, this.zoom);
     }
+  }
+
+  shiftUp(rowsCount) {
+    const imageData = this.context.getImageData(
+      0,
+      rowsCount * this.zoom,
+      this.canvas.height,
+      this.canvas.width
+    );
+    this.context.putImageData(imageData, 0, 0);
   }
 
   static getRandomColors() {
