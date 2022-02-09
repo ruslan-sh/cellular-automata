@@ -116,6 +116,14 @@
       padding: var(--spacing-1);
     }
   </style>
+  <script>
+    const InputStyle = {
+      centerDot: 'center-dot',
+      even: 'even',
+      shuffleEven: 'shuffle-even',
+      random: 'random'
+    }
+  </script>
 
   <title>Elementary Cellular Automata</title>
 </head>
@@ -173,11 +181,6 @@
         <div class="form-field">
           <label for="input-style">Input style:</label>
           <select name="input-style" id="settings__input-style">
-            <option value="center">center</option>
-            <option value="even">even</option>
-            <option value="interchange">interchange</option>
-            <option value="random">random</option>
-            <option value="random-even">random-even</option>
           </select>
         </div>
       </div>
@@ -250,7 +253,9 @@
       }
 
       getInputRow(inputType, size) {
-        const centralPoint = () => {
+        size = parseInt(size);
+
+        const centerDot = () => {
           const result = new Array(size).fill(0);
           result[parseInt(size/2)] = 1;
           return result;
@@ -269,15 +274,7 @@
           return result;
         }
 
-        const interchange = () => {
-          const result = new Array(size).fill(0); 
-          for (let i = 1; i < size; i++) {
-            result[i] = i % this.base;
-          }
-          return result;
-        }
-
-        const randomEven = () => {        
+        const shuffleEven = () => {        
           return shuffle(even());
         }
 
@@ -290,14 +287,12 @@
         }
 
         switch (inputType) {
-          case 'center':
-            return centralPoint();
-          case 'even':
+          case InputStyle.centerDot:
+            return centerDot();
+          case InputStyle.even:
             return even();
-          case 'interchange':
-            return interchange();
-          case 'random-even':
-            return randomEven();
+          case InputStyle.shuffleEven:
+            return shuffleEven();
           default:
             return random();
         }
@@ -444,10 +439,20 @@
         },
 
         setInputStyle: (value) => {
+          console.log(value);
           changeField(app, 'inputStyle', value);
           changeForm(settingsForm, 'input-style', value);
         }
       };
+
+      // Init select
+      const inputStyleSelect = settingsForm.elements['input-style'];
+      Object.entries(InputStyle).forEach(([_, value]) => {
+        const option = document.createElement('option');
+        option.value = value;
+        option.innerHTML = value;
+        inputStyleSelect.appendChild(option);
+      })
 
       // Default config
       app.automataConf.setBase(3);
@@ -455,7 +460,7 @@
       app.displayConf.setSize(360);
       app.displayConf.setZoom(2);
       app.setRandomRule(true);
-      app.setInputStyle('random-even');
+      app.setInputStyle(InputStyle.shuffleEven);
 
       settingsForm.addEventListener('change', () => {
         app.automataConf.setBase(settingsForm.elements['base'].value);
@@ -485,13 +490,12 @@
       }
     }
 
-    /* eslint-disable no-unused-vars -- used in HTML */
+    /* exported toggleSettings */
     function toggleSettings() {
       const settingsSection = document.getElementById("settings");
       settingsSection.classList.toggle('d-n-i');
     }
-    /* eslint-enable no-unused-vars */
-
+    
     init();
     main();
   </script>
