@@ -157,11 +157,16 @@ class App {
   }
 
   generate() {
+    if (this.scrollAnimation) {
+      cancelAnimationFrame(this.scrollAnimation);
+    }
+
     if (this.config.randomRule) {
       this.config.automata.setRuleId(
         Automata.getRandomRule(this.config.automata)
       );
     }
+
     this.config.display.colors = Display.getRandomColors();
     const automata = new Automata(this.config.automata);
     const display = new Display(this.config.display);
@@ -185,7 +190,6 @@ class App {
   }
 
   scrollGenerate(automata, display) {
-    clearInterval(this.scrollInterval);
     let row = automata.getInputRow(
       this.config.inputStyle,
       this.config.display.size
@@ -193,18 +197,19 @@ class App {
     display.drawRow(0, row);
 
     let rowIndex = 0;
-    const scroll = (rowsCount) => {
-      for (let i = 0; i < rowsCount; i++) {
-        if (rowIndex < this.config.display.size - 1) {
-          rowIndex++;
-        } else {
-          display.shiftUp(1);
-        }
-        row = automata.invoke(row);
-        display.drawRow(rowIndex, row);
+    const scroll = () => {
+      if (rowIndex < this.config.display.size - 1) {
+        rowIndex++;
+      } else {
+        display.shiftUp(1);
       }
+      row = automata.invoke(row);
+      display.drawRow(rowIndex, row);
+
+      this.scrollAnimation = requestAnimationFrame(scroll);
     };
-    this.scrollInterval = setInterval(() => scroll(2), 33);
+
+    scroll();
   }
 
   handleToggleSettings() {
