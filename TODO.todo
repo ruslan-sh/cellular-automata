@@ -1,0 +1,22 @@
++-   Setup Webpack
+
++-   Build Styles
+
+-   Setup Dev environment
+
+-   Rebuild on commit
+
+-   Migrate to TypeScript
+
+-   Migrate to stylus
+
+-   Refactor Settings
+    -   Move it from App
+    -   Autogenerate UI
+
+-   Color Settings instead of random
+
+
+-   Revamp generator and go away from number ruleId to array
+    -   Add support for more entry cells
+    -   Add support for more colors

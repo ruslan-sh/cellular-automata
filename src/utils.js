@@ -1,8 +1,8 @@
-/* exported shuffle  */
-function shuffle(array) {
-  var m = array.length,
-    t,
-    i;
+export function shuffle(array) {
+  let m = array.length;
+  let t;
+  let i;
+
   // While there remain elements to shuffle…
   while (m) {
     // Pick a remaining element…

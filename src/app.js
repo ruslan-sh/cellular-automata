@@ -1,6 +1,7 @@
-/* global Automata, Display, InputStyle */
+import { Automata, InputStyle } from "./automata";
+import { Display } from "./display";
 
-class App {
+export class App {
   constructor() {
     const settingsForm = document.getElementById("settings-form");
 
@@ -217,6 +218,3 @@ class App {
     settingsSection.classList.toggle("d-n-i");
   }
 }
-
-/* exported app */
-var app = new App();

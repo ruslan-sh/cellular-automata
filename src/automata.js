@@ -1,15 +1,13 @@
-/* global shuffle */
+import { shuffle } from "./utils.js";
 
-/* exported InputStyle */
-const InputStyle = {
+export const InputStyle = {
   centerDot: "center-dot",
   even: "even",
   shuffleEven: "shuffle-even",
   random: "random",
 };
 
-/* exported Automata */
-class Automata {
+export class Automata {
   constructor(conf) {
     if (conf.base < 2 || 8 < conf.base) {
       throw "Invalid Input";

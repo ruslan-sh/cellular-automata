@@ -1,7 +1,6 @@
-/* global shuffle */
+import { shuffle } from "./utils";
 
-/* exported Display */
-class Display {
+export class Display {
   constructor(conf) {
     this.size = conf.size;
     this.zoom = conf.zoom;
@@ -10,7 +9,7 @@ class Display {
     this.canvas = document.getElementById("canvas");
     this.canvas.height = this.size * this.zoom;
     this.canvas.width = this.size * this.zoom;
-    this.context = canvas.getContext("2d");
+    this.context = this.canvas.getContext("2d");
   }
 
   drawRow(rowIndex, row) {
