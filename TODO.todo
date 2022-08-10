@@ -4,7 +4,7 @@
 
 +-   Setup Dev/Prod
 
--   Rebuild on commit
++-   Rebuild on commit
 
 -   Migrate to TypeScript
 
