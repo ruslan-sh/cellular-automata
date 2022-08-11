@@ -7,8 +7,15 @@
     <title>Elementary Cellular Automata</title>
   </head>
   <body>
-    <section id="content">
-      <canvas id="canvas" onclick="app.generate()">
+    <section
+      id="content"
+      class="d-f f-direction-column f-grow-1 f-align-center f-justify-center"
+    >
+      <canvas
+        id="canvas"
+        class="border cursor-pointer"
+        onclick="app.generate()"
+      >
         Your browser doesn't support canvas
       </canvas>
       <div>
@@ -19,8 +26,8 @@
       </button>
     </section>
 
-    <section id="settings" class="d-n-i">
-      <form id="settings-form">
+    <section id="settings" class="d-n">
+      <form id="settings-form" class="d-f f-grow-1 f-justify-evenly f-wrap">
         <div class="settings-section">
           <h3>Automata</h3>
           <div class="form-field">
@@ -96,7 +103,7 @@
       </form>
     </section>
 
-    <section id="footer" class="m-t-4">
+    <section id="footer" class="d-f m-t-4 p-3 f-justify-evenly f-wrap">
       <a
         class="text--small"
         href="https://en.wikipedia.org/wiki/Elementary_cellular_automaton"

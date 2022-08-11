@@ -215,6 +215,7 @@ export class App {
 
   handleToggleSettings() {
     const settingsSection = document.getElementById("settings");
-    settingsSection.classList.toggle("d-n-i");
+    settingsSection.classList.toggle("d-n");
+    settingsSection.classList.toggle("d-f");
   }
 }
