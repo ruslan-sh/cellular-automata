@@ -1,6 +1,7 @@
 const { mergeWithRules } = require("webpack-merge");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
+const TerserPlugin = require("terser-webpack-plugin");
 const common = require("./webpack.common.js");
 
 module.exports = mergeWithRules({
@@ -17,7 +18,7 @@ module.exports = mergeWithRules({
     rules: [{ test: /\.css$/, use: [MiniCssExtractPlugin.loader] }],
   },
   optimization: {
-    minimizer: [new CssMinimizerPlugin()],
+    minimizer: [new CssMinimizerPlugin(), new TerserPlugin()],
   },
   plugins: [new MiniCssExtractPlugin()],
 });
