@@ -1,12 +1,29 @@
 import { shuffle } from "./utils";
 
+export interface IDisplayConfig {
+  size: number;
+  zoom: number;
+  colors: string[];
+}
+
 export class Display {
-  constructor(conf) {
+  private size: number;
+  private zoom: number;
+  private colors: string[];
+
+  private canvas: HTMLCanvasElement;
+  private context: CanvasRenderingContext2D;
+
+  constructor(conf: IDisplayConfig) {
     this.size = conf.size;
     this.zoom = conf.zoom;
     this.colors = conf.colors;
 
-    this.canvas = document.getElementById("canvas");
+    this.canvas = document.getElementById("canvas") as HTMLCanvasElement;
+    if (this.canvas === null) {
+      throw "Canvas not found";
+    }
+
     this.canvas.height = this.size * this.zoom;
     this.canvas.width = this.size * this.zoom;
     this.context = this.canvas.getContext("2d");

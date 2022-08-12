@@ -116,6 +116,15 @@
   font-size: var(--fs-small);
 }
 
+.form-field--inline {
+  flex-direction: row;
+  align-items: center;
+}
+
+.form-field--inline label {
+  margin-left: var(--spacing-half);
+}
+
 .settings-section {
   display: flex;
   flex-direction: column;

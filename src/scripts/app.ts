@@ -1,11 +1,45 @@
-import { Automata, InputStyle } from "./automata";
-import { Display } from "./display";
+import { Automata, IAutomataConfig, InputStyle } from "./automata";
+import { Display, IDisplayConfig } from "./display";
+
+interface IAppConfig {
+  automata: IAutomataConfig & {
+    setInputCells: (value: number) => void;
+    setBase: (value: number) => void;
+    setRuleId: (value: number) => void;
+  };
+  display: IDisplayConfig & {
+    setSize: (value: number) => void;
+    setZoom: (value: number) => void;
+  };
+  randomRule: boolean;
+  setRandomRule: (value: boolean) => void;
+
+  inputStyle: InputStyle;
+  setInputStyle: (value: InputStyle) => void;
+
+  enableScroll: boolean;
+  setEnableScroll: (value: boolean) => void;
+}
 
 export class App {
-  constructor() {
-    const settingsForm = document.getElementById("settings-form");
+  private config: IAppConfig;
 
-    const changeField = (obj, field, value) => {
+  private scrollAnimationHandler: number;
+
+  constructor() {
+    const settingsForm = document.getElementById(
+      "settings-form"
+    ) as HTMLFormElement;
+
+    if (settingsForm === null) {
+      throw "Settings form not found";
+    }
+
+    const changeField = <TConfig>(
+      obj: TConfig,
+      field: keyof TConfig,
+      value: any
+    ) => {
       if (obj[field] === value) {
         return false;
       }
@@ -14,19 +48,20 @@ export class App {
       return true;
     };
 
-    const changeForm = (form, element, value, select, set) => {
-      if (!select) {
-        select = (element) => {
-          element.value;
-        };
+    const changeForm = (
+      form: HTMLFormElement,
+      element: string,
+      value: any,
+      select: (element: HTMLInputElement) => void = (element) => {
+        element.value;
+      },
+      set: (element: HTMLInputElement, value: any) => void = (
+        element,
+        value
+      ) => {
+        element.value = value;
       }
-
-      if (!set) {
-        set = (element, value) => {
-          element.value = value;
-        };
-      }
-
+    ) => {
       const elementValue = select(form.elements[element]);
       if (elementValue === value) {
         return false;
@@ -37,6 +72,7 @@ export class App {
 
     this.config = {
       automata: {
+        inputCells: 0,
         setInputCells: (value) => {
           if (changeField(this.config.automata, "inputCells", value)) {
             changeForm(
@@ -51,6 +87,7 @@ export class App {
           changeForm(settingsForm, "input-cells", value);
         },
 
+        base: 0,
         setBase: (value) => {
           if (changeField(this.config.automata, "base", value)) {
             changeForm(
@@ -66,6 +103,7 @@ export class App {
           changeForm(settingsForm, "base", value);
         },
 
+        ruleId: 0,
         setRuleId: (value) => {
           changeField(this.config.automata, "ruleId", value);
           changeForm(settingsForm, "rule-id", value);
@@ -73,17 +111,22 @@ export class App {
       },
 
       display: {
+        size: 0,
         setSize: (value) => {
           changeField(this.config.display, "size", value);
           changeForm(settingsForm, "size", value);
         },
+
+        zoom: 0,
         setZoom: (value) => {
           changeField(this.config.display, "zoom", value);
           changeForm(settingsForm, "zoom", value);
         },
+
         colors: Display.getRandomColors(),
       },
 
+      randomRule: false,
       setRandomRule: (value) => {
         changeField(this.config, "randomRule", value);
         changeForm(
@@ -102,11 +145,13 @@ export class App {
         );
       },
 
+      inputStyle: InputStyle.centerDot,
       setInputStyle: (value) => {
         changeField(this.config, "inputStyle", value);
         changeForm(settingsForm, "input-style", value);
       },
 
+      enableScroll: false,
       setEnableScroll: (value) => {
         changeField(this.config, "enableScroll", value);
         changeForm(
@@ -158,8 +203,8 @@ export class App {
   }
 
   generate() {
-    if (this.scrollAnimation) {
-      cancelAnimationFrame(this.scrollAnimation);
+    if (this.scrollAnimationHandler) {
+      cancelAnimationFrame(this.scrollAnimationHandler);
     }
 
     if (this.config.randomRule) {
@@ -207,7 +252,7 @@ export class App {
       row = automata.invoke(row);
       display.drawRow(rowIndex, row);
 
-      this.scrollAnimation = requestAnimationFrame(scroll);
+      this.scrollAnimationHandler = requestAnimationFrame(scroll);
     };
 
     scroll();
