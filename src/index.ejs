@@ -31,73 +31,48 @@
         <div class="settings-section">
           <h3>Automata</h3>
           <div class="form-field">
-            <label for="base">Base:</label>
-            <select name="base" id="settings__base">
+            <label for="automata.base">Base:</label>
+            <select name="automata.base">
               <option value="2">2</option>
               <option value="3">3</option>
             </select>
           </div>
           <div class="form-field">
-            <label for="input-cells">Input cells:</label>
-            <select name="input-cells" id="settings__input-cells">
+            <label for="automata.inputCells">Input cells:</label>
+            <select name="automata.inputCells">
               <option value="2">2</option>
               <option value="3">3</option>
             </select>
           </div>
           <div class="form-field">
-            <label for="rule-id">Rule ID:</label>
+            <label for="automata.ruleId">Rule ID:</label>
             <div>
-              <input
-                type="checkbox"
-                name="random-rule"
-                id="settings__random-rule"
-              />
-              <label for="random-rule">Random rule</label>
+              <input type="checkbox" name="app.randomRule" />
+              <label for="app.randomRule">Random rule</label>
             </div>
-            <input
-              type="number"
-              name="rule-id"
-              id="settings__rule-id"
-              min="0"
-            />
+            <input type="number" name="automata.ruleId" min="0" />
           </div>
         </div>
         <div class="settings-section">
           <h3>Display</h3>
           <div class="form-field">
-            <label for="size">Size:</label>
-            <input
-              type="number"
-              name="size"
-              id="settings__size"
-              min="1"
-              max="2160"
-            />
+            <label for="display.size">Size:</label>
+            <input type="number" name="display.size" min="1" max="2160" />
           </div>
           <div class="form-field">
-            <label for="zoom">Zoom:</label>
-            <input
-              type="number"
-              name="zoom"
-              id="settings__zoom"
-              min="1"
-              max="100"
-            />
+            <label for="display.zoom">Zoom:</label>
+            <input type="number" name="display.zoom" min="1" max="100" />
           </div>
         </div>
         <div class="settings-section">
           <h3>Other</h3>
           <div class="form-field">
-            <label for="input-style">Input style:</label>
-            <select name="input-style" id="settings__input-style"></select>
+            <label for="app.inputStyle">Input style:</label>
+            <select name="app.inputStyle"></select>
           </div>
           <div class="form-field form-field--inline">
-            <input
-              type="checkbox"
-              name="enable-scroll"
-              id="settings__enable-scroll"
-            />
-            <label for="enable-scroll">Enable scroll</label>
+            <input type="checkbox" name="app.enableScroll" />
+            <label for="app.enableScroll">Enable scroll</label>
           </div>
         </div>
       </form>
