@@ -137,7 +137,7 @@ class AutomataConfig
       changeForm(
         this.settingsForm,
         this.formField("ruleId"),
-        Automata.getRulesCount(this).toString(),
+        Automata.getRulesCount_Legacy(this).toString(),
         (element) => element.getAttribute("max"),
         (element, value) => element.setAttribute("max", value)
       );
@@ -151,7 +151,7 @@ class AutomataConfig
       changeForm(
         this.settingsForm,
         this.formField("ruleId"),
-        Automata.getRulesCount(this).toString(),
+        Automata.getRulesCount_Legacy(this).toString(),
         (element) => element.getAttribute("max"),
         (element, value) => element.setAttribute("max", value)
       );

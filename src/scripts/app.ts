@@ -26,7 +26,7 @@ export class App {
         display: {
           size: 360,
           zoom: 2,
-          colors: Display.getRandomColors(),
+          colors: Display.getColors(),
         },
         randomRule: true,
         inputStyle: InputStyle.shuffleEven,
@@ -45,11 +45,11 @@ export class App {
 
     if (this.config.randomRule) {
       this.config.automata.setRuleId(
-        Automata.getRandomRule(this.config.automata)
+        Automata.getRandomRule_Legacy(this.config.automata)
       );
     }
 
-    this.config.display.colors = Display.getRandomColors();
+    this.config.display.colors = Display.getColors();
     const automata = new Automata(this.config.automata);
     const display = new Display(this.config.display);
     if (this.config.enableScroll) {

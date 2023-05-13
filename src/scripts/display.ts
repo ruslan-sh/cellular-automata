@@ -1,5 +1,3 @@
-import { shuffle } from "./utils";
-
 export interface IDisplayConfig {
   size: number;
   zoom: number;
@@ -48,7 +46,7 @@ export class Display {
     this.context.putImageData(imageData, 0, 0);
   }
 
-  static getRandomColors() {
+  static getColors() {
     const colors = [
       "#FAFAFA", // black
       "#212121", // white
@@ -59,6 +57,6 @@ export class Display {
       "#9C27B0", // purple
       "#00BCD4", // cyan
     ];
-    return shuffle(colors);
+    return colors;
   }
 }

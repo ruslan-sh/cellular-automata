@@ -1,5 +1,10 @@
 import { shuffle } from "./utils";
 
+const minBase = 2;
+const maxBase = 8;
+const minInputCells = 2;
+const maxInputCells = 5;
+
 export enum InputStyle {
   centerDot = "center-dot",
   even = "even",
@@ -19,23 +24,9 @@ export class Automata {
   private rules: number[];
 
   constructor(conf: IAutomataConfig) {
-    if (conf.base < 2 || 8 < conf.base) {
-      throw "Invalid Input";
-    }
-    const rulesCount = Math.pow(conf.base, conf.inputCells);
-    if (Math.pow(conf.base, rulesCount) < conf.ruleId) {
-      throw "Invalid Input";
-    }
-    const rulesArray = new Array(rulesCount);
-    let convert = conf.ruleId;
-    for (let i = 0; i < rulesCount; i++) {
-      rulesArray[i] = convert % conf.base;
-      convert = Math.trunc(convert / conf.base);
-    }
-
     this.base = conf.base;
     this.inputCellsCount = conf.inputCells;
-    this.rules = rulesArray;
+    this.rules = Automata.getRandomRule(conf);
   }
 
   invoke(inputRow: number[]) {
@@ -105,10 +96,29 @@ export class Automata {
   }
 
   static getRandomRule(conf: IAutomataConfig) {
-    return Math.floor(Math.random() * Automata.getRulesCount(conf));
+    const rulesCount = this.getRulesCount(conf);
+    const result = new Array(rulesCount);
+    for (let i = 0; i < rulesCount; i++) {
+      result[i] = Math.floor(Math.random() * conf.base);
+    }
+    return result;
   }
 
   static getRulesCount(conf: IAutomataConfig) {
+    if (conf.base < minBase || maxBase < conf.base) {
+      throw `Invalid Input. Base must be between ${minBase} and ${maxBase}.`;
+    }
+    if (conf.inputCells < minInputCells || maxInputCells < conf.inputCells) {
+      throw `Invalid Input. InputCells must be between ${minInputCells} and ${maxInputCells}.`;
+    }
+    return Math.pow(conf.base, conf.inputCells);
+  }
+
+  static getRandomRule_Legacy(conf: IAutomataConfig) {
+    return Math.floor(Math.random() * Automata.getRulesCount_Legacy(conf));
+  }
+
+  static getRulesCount_Legacy(conf: IAutomataConfig) {
     return Math.pow(conf.base, Math.pow(conf.base, conf.inputCells));
   }
 }
